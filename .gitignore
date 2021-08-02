@@ -1,0 +1,9 @@
+/KeePassLib/obj/
+/KeePass/obj/
+/Translation/TrlUtil/obj/
+/Build/KeePass/
+/Build/KeePassLib/
+/Build/KeePassLib_Distrib
+/.idea/
+/KeePass.sln.DotSettings.user
+/KeePassLib/obj/Debug/KeePassLib.csproj.AssemblyReference.cache
