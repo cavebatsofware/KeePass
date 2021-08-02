@@ -2895,6 +2895,9 @@ namespace KeePass.Forms
 				case (long)Program.AppMessage.IpcByFile1:
 					IpcUtilEx.ProcessGlobalMessage((int)lParam.ToInt64(), this, true);
 					break;
+				case (long)Program.AppMessage.AutoTypeByUUID:
+					IpcUtilEx.ProcessGlobalMessage((int)lParam.ToInt64(), this, true);
+					break;
 				default:
 					Debug.Assert(false);
 					break;

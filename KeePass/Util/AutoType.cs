@@ -243,7 +243,7 @@ namespace KeePass.Util
 			return true;
 		}
 
-		private static bool PerformInternal(AutoTypeCtx ctx, string strWindow)
+		public static bool PerformInternal(AutoTypeCtx ctx, string strWindow)
 		{
 			if(ctx == null) { Debug.Assert(false); return false; }
 

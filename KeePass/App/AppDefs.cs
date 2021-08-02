@@ -178,6 +178,7 @@ namespace KeePass.App
 			public static readonly string IpcEvent1 = "e1";
 
 			public static readonly string Uuid = "uuid";
+			public static readonly string AutoUuid = "auto-type-uuid";
 			public static readonly string Scheme = "scheme";
 			public static readonly string Value = "value";
 			public static readonly string Activate = "activate";

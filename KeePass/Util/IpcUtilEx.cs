@@ -91,6 +91,7 @@ namespace KeePass.Util
 
 		public static readonly string CmdOpenDatabase = "OpenDatabase";
 		public static readonly string CmdOpenEntryUrl = "OpenEntryUrl";
+		public static readonly string CmdAutotypeUuid = "AutotypeUuid";
 		public static readonly string CmdIpcEvent = "IpcEvent";
 
 		private static readonly byte[] IpcOptEnt = new byte[] {
@@ -246,14 +247,14 @@ namespace KeePass.Util
 			IpcParamEx ipcMsg = LoadIpcInfoFile(nId, bOneInstance);
 			if(ipcMsg == null) return;
 
-			if(ipcMsg.Message == CmdOpenDatabase)
+			if (ipcMsg.Message == CmdOpenDatabase)
 			{
 				mf.UIBlockAutoUnlock(true);
 				mf.EnsureVisibleForegroundWindow(true, true);
 				mf.UIBlockAutoUnlock(false);
 
 				string[] vArgs = CommandLineArgs.SafeDeserialize(ipcMsg.Param0);
-				if(vArgs == null) { Debug.Assert(false); return; }
+				if (vArgs == null) { Debug.Assert(false); return; }
 
 				CommandLineArgs args = new CommandLineArgs(vArgs);
 				Program.CommandLineArgs.CopyFrom(args);
@@ -261,26 +262,27 @@ namespace KeePass.Util
 				mf.OpenDatabase(mf.IocFromCommandLine(), KeyUtil.KeyFromCommandLine(
 					Program.CommandLineArgs), true);
 			}
-			else if(ipcMsg.Message == CmdOpenEntryUrl) OpenEntryUrl(ipcMsg, mf);
-			else if(ipcMsg.Message == CmdIpcEvent)
+			else if (ipcMsg.Message == CmdOpenEntryUrl) OpenEntryUrl(ipcMsg, mf);
+			else if (ipcMsg.Message == CmdIpcEvent)
 			{
 				try
 				{
-					if(IpcUtilEx.IpcEvent == null) return;
+					if (IpcUtilEx.IpcEvent == null) return;
 
 					string strName = ipcMsg.Param0;
-					if(string.IsNullOrEmpty(strName)) { Debug.Assert(false); return; }
+					if (string.IsNullOrEmpty(strName)) { Debug.Assert(false); return; }
 
 					string[] vArgs = CommandLineArgs.SafeDeserialize(ipcMsg.Param1);
-					if(vArgs == null) { Debug.Assert(false); return; }
+					if (vArgs == null) { Debug.Assert(false); return; }
 
 					CommandLineArgs clArgs = new CommandLineArgs(vArgs);
 
 					IpcEventArgs e = new IpcEventArgs(strName, clArgs);
 					IpcUtilEx.IpcEvent(null, e);
 				}
-				catch(Exception) { Debug.Assert(false); }
+				catch (Exception) { Debug.Assert(false); }
 			}
+			else if (ipcMsg.Message == CmdAutotypeUuid) AutotypeUuid(ipcMsg, mf);
 			else { Debug.Assert(false); }
 		}
 
@@ -305,6 +307,30 @@ namespace KeePass.Util
 				if(pe == null) continue;
 
 				mf.PerformDefaultUrlAction(new PwEntry[] { pe }, true);
+				break;
+			}
+		}
+
+		private static void AutotypeUuid(IpcParamEx ip, MainForm mf)
+		{
+			string strUuid = ip.Param0;
+			if (string.IsNullOrEmpty(strUuid)) return; // No assert (user data)
+
+			byte[] pbUuid = MemUtil.HexStringToByteArray(strUuid);
+			if ((pbUuid == null) || (pbUuid.Length != PwUuid.UuidSize)) return;
+			PwUuid pwUuid = new PwUuid(pbUuid);
+
+			List<PwDocument> lDocs = mf.DocumentManager.GetDocuments(int.MinValue);
+			foreach (PwDocument pwDoc in lDocs)
+			{
+				if (pwDoc == null) { Debug.Assert(false); continue; }
+
+				PwDatabase pdb = pwDoc.Database;
+				if ((pdb == null) || !pdb.IsOpen) continue;
+
+				PwEntry pe = pdb.RootGroup.FindEntry(pwUuid, true);
+				if (pe == null) continue;
+				AutoType.PerformIntoCurrentWindow(pe, pdb);
 				break;
 			}
 		}

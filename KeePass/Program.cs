@@ -106,7 +106,8 @@ namespace KeePass
 			AutoTypeSelected = 7,
 			Cancel = 8,
 			AutoTypePassword = 9,
-			IpcByFile1 = 10 // Handled by 1 other instance
+			IpcByFile1 = 10, // Handled by 1 other instance
+			AutoTypeByUUID = 11
 		}
 
 		public static CommandLineArgs CommandLineArgs
@@ -500,6 +501,13 @@ namespace KeePass
 				MainCleanUp();
 				return;
 			}
+			if(m_cmdLineArgs[AppDefs.CommandLineOptions.AutoUuid] != null)
+            {
+				string strEntryUuid = m_cmdLineArgs[AppDefs.CommandLineOptions.AutoUuid];
+				IpcParamEx ipUuid = new IpcParamEx(IpcUtilEx.CmdAutotypeUuid,
+					strEntryUuid, null, null, null, null);
+				IpcUtilEx.SendGlobalMessage(ipUuid, false);
+            }
 			if(m_cmdLineArgs[AppDefs.CommandLineOptions.LockAll] != null)
 			{
 				BroadcastAppMessageAndCleanUp(AppMessage.Lock);
